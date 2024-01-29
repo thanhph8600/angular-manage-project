@@ -1,0 +1,41 @@
+<div class="px-4 py-4">
+    <div class="shadow-lg border px-4 py-8 rounded-md">
+        <h2 class="uppercase text-lg font-semibold text-gray-700 pb-4 border-b">Thông tin tài khoản</h2>
+        <div class="py-4 px-6">
+            <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+                <div class="flex gap-5 py-2">
+                    <div class="w-full">
+                        <label for="">Tên tài khoản</label>
+                        <input formControlName="name" name="name" type="text" class=" border border-gray-300 text-gray-900 text-sm rounded-md  block w-full px-2 py-1.5 my-2" placeholder="Lỗ Đạt">
+                    </div>
+                    <div class="w-full">
+                        <label for="">Email</label>
+                        <input formControlName="email" name="email" placeholder="abc@gmail.com" type="text" class=" border border-gray-300 text-gray-900 text-sm rounded-md  block w-full px-2 py-1.5 my-2 ">
+                    </div>
+                    <div class="w-full">
+                        <label for="">Số điện thoại</label>
+                        <input formControlName="phone" name="phone" type="text" class=" border border-gray-300 text-gray-900 text-sm rounded-md  block w-full px-2 py-1.5 my-2 ">
+                    </div>
+                </div>
+                <div class="flex gap-5 py-2">
+                    <div class="w-full">
+                        <label for="">Địa chỉ</label>
+                        <input formControlName="address" name="address" type="text" class=" border border-gray-300 text-gray-900 text-sm rounded-md  block w-full px-2 py-1.5 my-2 ">
+                    </div>
+                    <div class="w-full">
+                        <label for="">Khu vực</label>
+                        <input formControlName="area" name="area" type="text" class=" border border-gray-300 text-gray-900 text-sm rounded-md block w-full px-2 py-1.5 my-2 cursor-not-allowed" readonly>
+                    </div>
+                </div>
+                <div class="w-full py-2">
+                    <label for="">Ảnh đại diện</label>
+                    <input type="file" class="w-full block my-2" formControlName="thumb" name="thumb" (change)="changeThumb($event)">
+                    <img class="w-40 my-5" [src]="user[0].thumb"  alt="">
+                </div>
+                <div class="py-2">
+                    <button class="bg-blue-500 text-white font-semibold text-lg px-4 py-2 rounded-md border">Cập nhật</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

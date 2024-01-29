@@ -1,0 +1,25 @@
+<div class="py-4 shadow-lg w-full">
+    <div class="flex justify-between px-12">
+        <div></div>
+        <div class="">
+            <div class="flex gap-4 items-center">
+                <div>
+                    <a routerLink="user">
+                        <img class="w-10 h-10 flex justify-center items-center rounded-full border" src="https://firebasestorage.googleapis.com/v0/b/project-management-dc43a.appspot.com/o/user-image.jpg?alt=media&token=e6fbacef-f723-49e7-881b-815ee31e4eec" alt="">
+                    </a>
+                </div>
+                <div>
+                    <h4 class="font-semibold uppercase text-base">{{user[0].name}}</h4>
+                    <p class="text-gray-400 text-sm"> {{user[0].role}} </p>
+                </div>
+                <div>
+                    <p class="cursor-pointer text-xl font-bold" (click)="logout()">
+                        <svg fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} viewBox="0 0 24 24" height="1em" width="1em" >
+                        <path d="M10 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
+                      </svg>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
