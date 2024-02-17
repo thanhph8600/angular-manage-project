@@ -1,0 +1,147 @@
+<div class=" container m-auto pt-4 px-10">
+    <div class="grid grid-cols-4 gap-4 py-8">
+        <div  class="border p-4 rounded-md shadow-lg text-center ">
+            <h2 class="uppercase text-xl font-semibold pb-2"> {{project.name}}</h2>
+            <p> {{formatPrice(project.expense) }} ({{project.teamSize}} thành viên)</p>
+        </div>
+        <div  class=" border p-4 rounded-md shadow-lg text-center ">
+            <p> Ngày bắt đầu: {{currentDate(project.startDate)}}</p>
+            <p> Ngày kết thúc: {{currentDate(project.endDate)}} </p>
+        </div>
+
+        <div  class=" border p-4 rounded-md shadow-lg text-center text-green-500">
+            <h2 class="uppercase text-xl font-semibold">{{project.status}} </h2>
+        </div>
+        <div (click)="doneProject()" *ngIf="project.status =='working'" class="border p-4 rounded-md shadow-lg text-center bg-blue-500 text-white flex items-center justify-center gap-4 cursor-pointer hover:bg-blue-400" >
+            <h2 class="uppercase text-xl font-semibold">Hoàn thành</h2>
+            <svg fill="currentColor" viewBox="0 0 16 16"  height="1em"  width="1em"  >
+            <path d="M16 8A8 8 0 110 8a8 8 0 0116 0zm-3.97-3.03a.75.75 0 00-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 00-1.06 1.06L6.97 11.03a.75.75 0 001.079-.02l3.992-4.99a.75.75 0 00-.01-1.05z" />
+          </svg>
+        </div>
+    </div>
+
+    <div *ngIf="project.status == 'processing'">
+        <div class="pt-2 pb-4">
+            <div class="border p-4 rounded shadow-md">
+                <div class="flex gap-2">
+                    <div class="w-1/2 pl-4 border-l">
+                        <div class="flex justify-between">
+                            <h2 class="font-semibold text-base">Các thành viên trong dự án</h2>
+                            <p (click)="identifyTeam()" *ngIf="project?.status == 'processing'" class="flex items-center gap-2 px-2 py-1 rounded-md text-white bg-blue-500 cursor-pointer">
+                                Xác nhận thành viên 
+                                <svg  fill="currentColor"  viewBox="0 0 16 16"  height="1em"  width="1em" >
+                                <path d="M16 8A8 8 0 110 8a8 8 0 0116 0zm-3.97-3.03a.75.75 0 00-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 00-1.06 1.06L6.97 11.03a.75.75 0 001.079-.02l3.992-4.99a.75.75 0 00-.01-1.05z" />
+                              </svg>
+                            </p>
+                        </div>
+                        <div class="flex flex-wrap flex-col">
+                            <div *ngFor="let item of teamProject" class=" p-2 flex justify-between">
+                                <div class="flex gap-2 items-center">
+                                    <img class="w-7" [src]="item.thumb" alt="">
+                                    <p class=" font-semibold capitalize"> {{item.name}} </p>
+                                    <p class="capitalize"> - {{item.position}} </p>
+                                </div>
+                                <div *ngIf="item.position != 'leader'">
+                                    <div >
+                                        <svg (click)="removeStaffFromProject(item.id)" class="hover:text-blue-500 cursor-pointer" viewBox="0 0 1024 1024" fill="currentColor" height="1em" width="1em" >
+                                            <path d="M685.4 354.8c0-4.4-3.6-8-8-8l-66 .3L512 465.6l-99.3-118.4-66.1-.3c-4.4 0-8 3.5-8 8 0 1.9.7 3.7 1.9 5.2l130.1 155L340.5 670a8.32 8.32 0 00-1.9 5.2c0 4.4 3.6 8 8 8l66.1-.3L512 564.4l99.3 118.4 66 .3c4.4 0 8-3.5 8-8 0-1.9-.7-3.7-1.9-5.2L553.5 515l130.1-155c1.2-1.4 1.8-3.3 1.8-5.2z" />
+                                            <path d="M512 65C264.6 65 64 265.6 64 513s200.6 448 448 448 448-200.6 448-448S759.4 65 512 65zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    
+            </div>
+        </div>
+    
+        <div  class="flex flex-col">
+            <div class="sm:-mx-6 lg:-mx-8">
+                <div class="inline-block min-w-full py-2 sm:px-6 lg:px-8">
+                    <div class="">
+                        <table class="min-w-full text-left text-sm font-light border rounded-xl overflow-hidden shadow-lg">
+                            <thead class="border-b font-medium dark:border-neutral-500 bg-gray-100">
+                                <tr>
+                                    <th scope="col" class="px-6 py-4">Tên nhân viên</th>
+                                    <th scope="col" class="px-6 py-4">Chức vụ</th>
+                                    <th scope="col" class="px-6 py-4">Email</th>
+                                    <th scope="col" class="px-6 py-4">Trạng thái</th>
+                                    <th scope="col" class="px-6 py-4"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr  *ngFor="let item of listStaff" class="border-b dark:border-neutral-500">
+                                    <td class="whitespace-nowrap px-6 py-4 font-medium"> 
+                                        {{item.name}}
+                                    </td>
+                                    <td class="whitespace-nowrap px-6 py-4"> 
+                                        {{item.position}}
+                                    </td>
+                                    <td class="whitespace-nowrap px-6 py-4"> 
+                                        {{item.email}}
+                                    </td>
+                                    <td class="whitespace-nowrap px-6 py-4"> 
+                                        {{item.status}}
+                                    </td>
+                                    <td class="whitespace-nowrap px-6 py-4"> 
+                                        <svg (click)="addStaffToProject(item.id)" class=" cursor-pointer hover:text-blue-500" viewBox="0 0 1000 1000" fill="currentColor" height="1.5em"  width="1.5em" >
+                                        <path d="M620 722c120 42.667 180 83.333 180 122v106H0V748c24-9.333 51.333-18 82-26 62.667-22.667 105.667-45.667 129-69s35-55 35-95c0-14.667-7.667-30.667-23-48s-25.667-42-31-74c-1.333-8-9-16.333-23-25-14-8.667-22.333-29-25-61 0-10.667 1.667-19.333 5-26 3.333-6.667 6.333-10.667 9-12l4-4c-5.333-33.333-9.333-62.667-12-88-4-36 9.333-73.333 40-112s84-58 160-58 129.333 19.333 160 58 44.667 76 42 112l-14 88c12 5.333 18 19.333 18 42-1.333 18.667-4.333 33-9 43s-9.333 15.667-14 17c-4.667 1.333-9.333 4-14 8s-7.667 10-9 18c-6.667 30.667-17.667 55-33 73-15.333 18-23 34.333-23 49 0 40 12 71.667 36 95s67.333 46.333 130 69m230-272h150v100H850v150H750V550H600V450h150V300h100v150" />
+                                      </svg>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="project.status != 'processing'" class="flex flex-col">
+        <div class="sm:-mx-6 lg:-mx-8">
+            <div class="inline-block min-w-full py-2 sm:px-6 lg:px-8">
+                <div class="">
+                    <table class="min-w-full text-left text-sm font-light border rounded-xl overflow-hidden shadow-lg">
+                        <thead class="border-b font-medium dark:border-neutral-500 bg-gray-100">
+                            <tr>
+                                <th scope="col" class="px-6 py-4">Tên nhân viên</th>
+                                <th scope="col" class="px-6 py-4">Vai trò</th>
+                                <th scope="col" class="px-6 py-4">Số công việc</th>
+                                <th scope="col" class="px-6 py-4">Trạng thái</th>
+                                <th scope="col" class="px-6 py-4"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr  *ngFor="let item of teamProject" class="border-b dark:border-neutral-500">
+                                <td class="whitespace-nowrap px-6 py-4 font-medium"> 
+                                    {{item.name}}
+                                </td>
+                                <td class="whitespace-nowrap px-6 py-4"> 
+                                    {{item.position}}
+                                </td>
+                                <td class="whitespace-nowrap px-6 py-4" *ngIf="item.role=='staff'"> 
+                                    {{item.sumTask}}
+                                </td>
+                                <td class="whitespace-nowrap px-6 py-4 " *ngIf="item.role=='staff'"> 
+                                    {{item.status_summary}}
+                                </td>
+                                <td class="whitespace-nowrap px-6 py-4" *ngIf="item.role=='staff'" > 
+                                    <a routerLink="task/{{item.id}}">
+                                        <svg viewBox="0 0 24 24"  fill="currentColor" height="1.5em" width="1.5em" >
+                                            <path d="M5 22h14c1.103 0 2-.897 2-2V5c0-1.103-.897-2-2-2h-2a1 1 0 00-1-1H8a1 1 0 00-1 1H5c-1.103 0-2 .897-2 2v15c0 1.103.897 2 2 2zM5 5h2v2h10V5h2v15H5V5z" />
+                                            <path d="M11 13.586l-1.793-1.793-1.414 1.414L11 16.414l5.207-5.207-1.414-1.414z" />
+                                        </svg>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+</div>

@@ -9,6 +9,7 @@ import { UserComponent } from './user/user.component';
 import { ListAccountComponent } from './teamleader/list-account/list-account.component';
 import { NotfountComponent } from './notfount/notfount.component';
 import { DetailaccountComponent } from './teamleader/detailaccount/detailaccount.component';
+import { DetailProjectComponent } from './teamleader/detail-project/detail-project.component';
 
 export const routes: Routes = [
     {path: 'login',component: LoginComponent},
@@ -23,7 +24,15 @@ export const routes: Routes = [
             {path: '', component: DashboardComponent},
             {path: 'dashboard', component: DashboardComponent},
             {path: 'project', component: ProjectComponent},
-            {path: 'tasks', component: TaskComponent},
+            {
+                path: 'detail-project/:id', 
+                component: DetailProjectComponent, canActivate: [RoleGuard],
+                data: {
+                    expectedRole: (route: ActivatedRouteSnapshot) => {
+                        return leader; 
+                    },
+            }},
+            {path: 'detail-project/:idProject/task/:idUser', component: TaskComponent},
             {path: 'user', component: UserComponent},
             {
                 path: 'account', 

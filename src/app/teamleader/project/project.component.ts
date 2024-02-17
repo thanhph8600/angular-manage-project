@@ -4,30 +4,42 @@ import { AbstractControl, FormControl, FormGroup, FormsModule, ReactiveFormsModu
 import { Project, ProjectService } from '../../service/project/project.service';
 import { User, UserService } from '../../service/user/user.service';
 import { LoadComponent } from '../../component/load/load.component';
-import { TeamService } from '../../service/team/team.service';
+import { Team, TeamService } from '../../service/team/team.service';
 import { DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-project',
   standalone: true,
-  imports: [NgIf, ReactiveFormsModule, FormsModule, NgFor, LoadComponent],
+  imports: [
+    NgIf, 
+    ReactiveFormsModule, 
+    FormsModule, 
+    NgFor, 
+    LoadComponent,
+    RouterLink
+  ],
   providers: [DatePipe],
   templateUrl: './project.component.html',
   styleUrl: './project.component.css'
 })
 export class ProjectComponent implements OnInit {
   projectList: Project[] = [];
+  filterProjectList: Project[] = [];
   leaderList: User[] = [];
   user:User[] = [];
-
+  
   popup: boolean = false;
   loadCreate: boolean = false;
   projectForm:FormGroup;
-  leaeder: Leader = {
+  leader: Leader = {
     id_account : 0,
     id_project: 0,
     role: 'leader',
   };
+  idTeam: number = 0;
+  update: number = 0;
+
   constructor(
     private projectService: ProjectService, 
     private userService: UserService,
@@ -45,55 +57,168 @@ export class ProjectComponent implements OnInit {
 
   ngOnInit(): void {
     this.user = this.userService.getUser()  
+
+    this.getProjectList()
+    this.getLeader()
+  }
+
+  getProjectList() {
+    if (this.user[0].role == 'admin') {
+      this.projectService.getAll().subscribe((res) => {
+        this.projectList = res;
+        this.filterProjectList = this.projectList;
+      })
+    }else {
+      let project:[]
+      this.teamService.getByIdAccount(this.user[0].id).subscribe((res) => {
+        project = res;
+  
+        this.projectService.getAll().subscribe((res) => {
+          this.projectList = res.filter((res: Project) => {
+            return project.some((item: any) => {
+              return item.id_project == res.id
+            })
+          })
+          
+          this.filterProjectList = this.projectList;
+        })
+      })
+    }
+  }
+
+  getLeader() {
     if (this.user[0].role == 'leader') {
-      this.leaeder.id_account = this.user[0].id;
+      this.leader.id_account = this.user[0].id;
     }else {
       this.userService.getAll().subscribe((res) => {
         const users = res;
         const leaders = users.filter((user: User) => {
-          return user.role == 'leader' && user.status == 'activate'
+          return user.role == 'leader'
         })
       this.leaderList = leaders
       })
     }
-
-    this.projectService.getAll().subscribe((res) => {
-      this.projectList = res;
-    })
   }
 
   currentDate(date: Date) {
     return this.datePipe.transform(date, 'yyyy-MM-dd');
   }
+  countWorking() {
+    return this.projectList.filter(
+      (project: Project) => {
+        return project.status == 'working'
+      }).length
+  }
+  countDone() {
+    return this.projectList.filter(
+      (project: Project) => {
+        return project.status == 'done'}
+      ).length
+  }
+  filterProject(value: string) {
+    if(value == 'all') {
+      return this.filterProjectList = this.projectList;
+    } else {
+      this.filterProjectList = this.projectList.filter((project: Project) => {
+        return project.status == value
+      });
+      return this.filterProjectList;
+    }
+  }
   changeLeader(event: any) { 
-    this.leaeder.id_account = event.target.value;
+    this.leader.id_account = event.target.value;
   }
   
   changePopup() {
     this.popup = !this.popup;
+    this.update = 0;
     this.projectForm.reset()
   }
 
   onSubmit() {
     if (this.projectForm.valid) {
       this.loadCreate = true
-      console.log(this.projectForm.value.createAt);
-      this.projectService.craete(this.projectForm.value).subscribe((res) => {
-        this.leaeder.id_project = res.id;
-        
-        this.teamService.craete( this.leaeder ).subscribe((res) => {  
-            this.userService.update( { status: 'busy' } , this.leaeder.id_account)
-              .subscribe((res) => {
-                alert('Create project success')
-                this.loadCreate = false
-                this.changePopup();
-              })
-          }, (err) => {
-            this.projectService.delete(this.leaeder.id_project).subscribe()
-            console.log(err);
-            alert('Create project fail')
-            this.loadCreate = false
-          })
+      
+      if(!this.update) {
+        this.createProject()
+        return
+      }
+      this.updateProject()
+    }
+  }
+
+  btn_editProject(project: Project) {
+    this.projectForm.setValue({
+      name: project.name,
+      expense: project.expense,
+      teamSize: project.teamSize,
+      startDate: this.currentDate(project.startDate),
+      endDate: this.currentDate(project.endDate)
+    })
+    this.leader.id_project = project.id;
+    this.teamService.getByIdProject(project.id).subscribe((res) => {
+      let user = res.find((x:User) => x.role == 'leader');      
+      this.leader.id_account = user.id_account;    
+      this.idTeam = user.id_team;
+    })
+    this.update = project.id;
+    this.popup = true;
+  }
+
+  createProject() {
+    this.projectService.craete(this.projectForm.value).subscribe((res) => {
+      this.leader.id_project = res.id;
+      
+      this.teamService.craete( this.leader ).subscribe((res) => {  
+          alert('Create project success')
+          this.loadCreate = false
+          this.changePopup();
+          this.getProjectList()
+        }, (err) => {
+          this.projectService.delete(this.leader.id_project).subscribe()
+          console.log(err);
+          alert('Create project fail')
+          this.loadCreate = false
+        })
+    })
+  }
+
+  updateProject() {
+    this.projectService.update(this.projectForm.value, this.leader.id_project).subscribe((res) => {
+      this.teamService.update(this.leader, this.idTeam).subscribe((res) => {
+        alert('Update project success')
+        this.loadCreate = false
+        this.changePopup();
+        this.getProjectList()
+      }, (err) => {
+        console.log(err);
+        alert('Update project fail')
+        this.loadCreate = false
+      })
+    })
+  }
+
+  deleteProject() {
+    let check = confirm('Are you sure you want to delete this project?')
+    if (check) {
+      this.teamService.getByIdProject(this.leader.id_project).subscribe((res) => {
+
+        res.forEach((x:any) => {
+          this.teamService.delete(x.id_team).subscribe()
+          this.userService.updateStatus({status: 'activate'}, x.id_account).subscribe()
+        });
+
+        this.projectService.delete(this.leader.id_project).subscribe((res) => {
+          alert('Delete project success')
+          this.loadCreate = false
+          this.changePopup();
+          this.getProjectList()
+        })
+      }, 
+      (err) => {
+        console.log(err);
+        alert('Delete project fail')
+        this.loadCreate = false
       })
     }
   }

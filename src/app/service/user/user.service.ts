@@ -56,6 +56,10 @@ export class UserService {
     return this.dataService.patchData(`${this.table}/${id}`,data)
   }
 
+  updateStatus(data:object,id:number){
+    return this.dataService.patchData(`${this.table}/status/${id}`,data)
+  }
+
   craete(data:object) {
     return this.dataService.postData(this.table,data)
   }
@@ -71,4 +75,5 @@ export interface User{
   role: string,
   area: string,
   status: string,
+  position:string,
 }

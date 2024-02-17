@@ -6,11 +6,12 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { CookieService } from '../service/cookie.service';
 import { UserService } from '../service/user/user.service';
 import { Router } from '@angular/router';
+import { LoadComponent } from '../component/load/load.component';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [NgIf, FormsModule, ReactiveFormsModule, HttpClientModule],
+  imports: [NgIf, FormsModule, ReactiveFormsModule, HttpClientModule, LoadComponent],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
@@ -27,7 +28,7 @@ export class LoginComponent implements OnInit {
       ])
   })
   checkFrom: string = '';
-
+  load: boolean = false;
   ngOnInit(): void {
     const user = this.user.getUser()
     const token = this.cookie.getCookie('token')
@@ -45,6 +46,7 @@ export class LoginComponent implements OnInit {
     if(!this.formLogin.valid) {
       this.checkFrom = 'Bạn nhập chưa đủ thông tin'
     }else {
+      this.load = true;
       this.checkFrom = '';
       this.user.login(this.formLogin.value).subscribe(
         (data) => {
