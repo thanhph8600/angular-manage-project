@@ -82,23 +82,27 @@
                       <option value="staff">Nhân viên</option>
                     </select>
                   </div>
-                  <div class="py-2  w-full">
-                      <label for="name">Địa điểm</label>
-                      <select formControlName="area" name="area"  class="w-full border rounded-md py-1 px-2 my-2">
-                        <option value="North">Miền Bắc</option>
-                        <option value="Central">Miền Trung </option>
-                        <option value="South">Miền Nam</option>
-                      </select>
-                  </div>
+                  <div class="py-2 w-full">
+                    <label for="name">Vị trí:</label>
+                    <input formControlName="position" class="w-full border rounded-md py-1 px-2 my-2" type="text" name="position">
+                </div>
                 </div>
                 <div class="flex gap-4">
-                    <div class="py-2">
+                    <div class="py-2  w-full">
+                        <label for="name">Địa điểm</label>
+                        <select formControlName="area" name="area"  class="w-full border rounded-md py-1 px-2 my-2">
+                          <option value="North">Miền Bắc</option>
+                          <option value="Central">Miền Trung </option>
+                          <option value="South">Miền Nam</option>
+                        </select>
+                    </div>
+                    <div class="py-2 w-full">
                         <label for="name">Mật khẩu:</label>
-                        <input formControlName="password" class="w-full border rounded-md py-1 px-2 my-2" type="text" name="password">
+                        <input formControlName="password" class="w-full border rounded-md py-1 px-2 my-2" type="password" name="password">
                     </div>
                 </div>
-                <div class=" py-2">
-                        <button  class=" px-6 py-2 rounded-md shadow bg-blue-500 text-white">
+                <div class=" py-2 flex justify-between">
+                        <button [disabled]="userForm.invalid" class=" px-6 py-2 rounded-md shadow bg-blue-500 text-white">
                             <ng-container *ngIf="!loadCreate; else elseTemplate">
                                 Tạo
                             </ng-container>
@@ -107,6 +111,7 @@
                                 <span class="sr-only text-base">Loading...</span>
                             </ng-template>
                         </button>
+                        <p *ngIf="user" (click)="lockUser()" class=" cursor-pointer px-4 py-2 rounded-md bg-red-500 text-white">Khóa</p>
                 </div>
             </form>
             <span class=" absolute top-4 right-4">

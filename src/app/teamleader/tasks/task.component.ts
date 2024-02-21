@@ -6,7 +6,7 @@ import { Task, TaskService } from '../../service/task/task.service';
 import { DatePipe } from '@angular/common';
 import { User, UserService } from '../../service/user/user.service';
 import { ProjectService } from '../../service/project/project.service';
-import { data } from 'jquery';
+import { TeamService } from '../../service/team/team.service';
 declare var $: any;
 @Component({
   selector: 'app-task',
@@ -40,11 +40,14 @@ export class TaskComponent implements OnInit{
   user:User[] =[]
   project:any
   role:string =''
+  idAccount:number = 0
+  checkStatus:boolean = false
 
   constructor(
     private route: ActivatedRoute,
     private taskService: TaskService,
     private userService: UserService,
+    private teamService: TeamService,
     private projectService: ProjectService,
     private datePipe: DatePipe,
   ) {}
@@ -54,12 +57,27 @@ export class TaskComponent implements OnInit{
     this.route.params.subscribe(params => {
       this.getUser(params['idUser'])
       this.getPorject(params['idProject'])
+      this.teamService.getByIdProject(params['idProject']).subscribe(
+        (res) => {
+          let checkOff = res.filter((item:any) => {
+            return item.id_account == params['idUser'] && item.teamStatus == 'off'
+          })
+          this.checkStatus = checkOff.length ==0 ? true : false
+          console.log(this.checkStatus);
+          
+        },
+        (err) => {
+          console.log(err);
+        }
+      );
     });
     let user =  this.userService.getUser()
     this.role = user[0].role    
   }
 
   getUser(id:number) {
+    this.idAccount = this.userService.getUser()[0].id
+    
     this.userService.getById(id).subscribe(
       (res) => {
         this.user.push(res);
@@ -68,6 +86,8 @@ export class TaskComponent implements OnInit{
         console.log(err);
       }
     );
+
+
   }
   getPorject(id:number) {
     this.projectService.getById(id).subscribe(
@@ -81,7 +101,7 @@ export class TaskComponent implements OnInit{
   }
 
   // This method is used to show or hide the description of the task
-  ngAfterViewInit(): void {
+  ngAfterContentInit(): void {
     $(document).on('click', '.item-title', (event:any) => {
       $(event.currentTarget).next('.item-description').slideToggle();
     });
@@ -104,6 +124,8 @@ export class TaskComponent implements OnInit{
     this.getValueParams()
     this.taskService.getTasks().subscribe(
       (res) => {
+        console.log(res);
+        
         if(res.length > 0){
           this.listTask = res.filter(
             (task:Task) => String(task.id_project) == this.formTask.controls['id_project'].value &&
@@ -130,12 +152,28 @@ export class TaskComponent implements OnInit{
     this.formTask.controls['status'].setValue('pending');
   }
 
+  checkDate() {
+    if(this.formTask.value.endDate) {
+      const date = new Date(this.formTask.value.endDate);
+      const currentDate = new Date(this.project.endDate);
+      if (date < currentDate) {
+        return true;
+      }
+    }
+    return false;
+  }
   onSubmit() {
+    if(!this.checkDate()) {
+      alert(`Không thể tạo công việc sau ngày kết thúc dự án: ${this.formattedDate(this.project.endDate)}`);
+      this.formTask.get('endDate')?.hasError('invalidDate')
+      return;
+    }
     if(this.isEdit) {
       this.updateTask()
     }else {
       this.createTask()
     }
+    
     this.changePopup()
   } 
 
@@ -204,6 +242,7 @@ export class TaskComponent implements OnInit{
     this.taskService.deleteTask(id).subscribe(
       (res) => {
         this.getTask()
+        this.changePopup()
         alert('Task deleted successfully');
       },
       (err) => {
@@ -259,6 +298,7 @@ export class TaskComponent implements OnInit{
       }
     );
   }
+
 }
 
 function futureDateValidator(control: AbstractControl): { [key: string]: any } | null {
@@ -269,3 +309,4 @@ function futureDateValidator(control: AbstractControl): { [key: string]: any } |
   }
   return null;
 }
+

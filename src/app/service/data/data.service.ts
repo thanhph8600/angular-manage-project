@@ -41,6 +41,19 @@ export class DataService {
     return this.postData('email/send', data, {headers})
   }
 
+  uploadFile(file: File) {
+    
+    const url = 'https://firebasestorage.googleapis.com/v0/b/project-management-dc43a.appspot.com/o?name=' + file.name;
+    
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post(url, formData, {
+      reportProgress: true,
+      observe: 'events'
+    });
+  }
+
   getHeaders() {
     const token = this.cookie.getCookie('token');
     return new HttpHeaders({

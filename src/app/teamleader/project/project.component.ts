@@ -7,7 +7,6 @@ import { LoadComponent } from '../../component/load/load.component';
 import { Team, TeamService } from '../../service/team/team.service';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
-
 @Component({
   selector: 'app-project',
   standalone: true,
@@ -27,6 +26,7 @@ export class ProjectComponent implements OnInit {
   projectList: Project[] = [];
   filterProjectList: Project[] = [];
   leaderList: User[] = [];
+  listCustomer: User[] = [];
   user:User[] = [];
   
   popup: boolean = false;
@@ -39,7 +39,7 @@ export class ProjectComponent implements OnInit {
   };
   idTeam: number = 0;
   update: number = 0;
-
+  idCustomer: number = 0;
   constructor(
     private projectService: ProjectService, 
     private userService: UserService,
@@ -50,14 +50,16 @@ export class ProjectComponent implements OnInit {
       'name': new FormControl('test', Validators.required),
       'expense': new FormControl(123, Validators.required),
       'teamSize': new FormControl(12, Validators.required),
-      'startDate': new FormControl(null, Validators.required),
-      'endDate': new FormControl(null, Validators.required),
-    },{validators: this.dateLessThan('startDate', 'endDate')});
+      'id_customer': new FormControl(0),
+      'endDate': new FormControl(null, [Validators.required, futureDateValidator]),
+    });
   }
 
   ngOnInit(): void {
     this.user = this.userService.getUser()  
-
+    this.userService.getAllCustomer().subscribe((res) => {
+      this.listCustomer = res;
+    })
     this.getProjectList()
     this.getLeader()
   }
@@ -128,7 +130,14 @@ export class ProjectComponent implements OnInit {
   changeLeader(event: any) { 
     this.leader.id_account = event.target.value;
   }
-  
+  changeCustomer(event: any) { 
+    this.projectForm.patchValue({
+      'id_customer': event.target.value
+    });
+    console.log(this.projectForm.value.id_customer);
+    
+  }
+
   changePopup() {
     this.popup = !this.popup;
     this.update = 0;
@@ -138,7 +147,11 @@ export class ProjectComponent implements OnInit {
   onSubmit() {
     if (this.projectForm.valid) {
       this.loadCreate = true
-      
+      if(this.projectForm.value.id_customer == null) {
+        this.projectForm.patchValue({
+          'id_customer': 0
+        });
+      }
       if(!this.update) {
         this.createProject()
         return
@@ -148,13 +161,15 @@ export class ProjectComponent implements OnInit {
   }
 
   btn_editProject(project: Project) {
+    
     this.projectForm.setValue({
       name: project.name,
       expense: project.expense,
       teamSize: project.teamSize,
-      startDate: this.currentDate(project.startDate),
+      id_customer: project.id_customer,
       endDate: this.currentDate(project.endDate)
     })
+    this.idCustomer = project.id_customer;
     this.leader.id_project = project.id;
     this.teamService.getByIdProject(project.id).subscribe((res) => {
       let user = res.find((x:User) => x.role == 'leader');      
@@ -201,6 +216,8 @@ export class ProjectComponent implements OnInit {
   deleteProject() {
     let check = confirm('Are you sure you want to delete this project?')
     if (check) {
+      console.log(this.leader.id_project);
+      
       this.teamService.getByIdProject(this.leader.id_project).subscribe((res) => {
 
         res.forEach((x:any) => {
@@ -222,21 +239,28 @@ export class ProjectComponent implements OnInit {
       })
     }
   }
-
-  dateLessThan(startKey: string, endKey: string): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
-      let start = control.get(startKey);
-      let end = control.get(endKey);
-      if (start && end && start.value > end.value) {
-        return {
-          dates: "Start date should be less than end date"
-        };
-      }
-      return null;
-    };
+  
+  checkStatus(status:string) {
+    if(status == 'processing') {
+      return 'bg-blue-500';
+    }
+    if(status == 'working') {
+      return 'bg-yellow-500';
+    }
+    if(status == 'done') {
+      return 'bg-green-500';
+    }
+    return 'bg-gray-500';
   }
 }
-
+function futureDateValidator(control: AbstractControl): { [key: string]: any } | null {
+  const selectedDate: Date = new Date(control.value);
+  const currentDate: Date = new Date();
+  if (selectedDate < currentDate) {
+    return { 'invalidDate': true };
+  }
+  return null;
+}
 interface Leader {
   id_account: number;
   id_project: number;

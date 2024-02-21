@@ -21,6 +21,9 @@ export class TaskService {
   update(data:object,id:number){
     return this.dataService.patchData(`${this.table}/${id}`,data)
   }
+  updateJobTransfer(data:object,id:number){
+    return this.dataService.patchData(`${this.table}/project/${id}`,data)
+  }
   deleteTask(id:number) {
     return this.dataService.delete(`${this.table}/${id}`);
   }

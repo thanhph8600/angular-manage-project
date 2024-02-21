@@ -19,9 +19,12 @@ export class UserComponent implements OnInit{
       Validators.required
     ]),
     'area': new FormControl(null),
+
     'address': new FormControl(null, [Validators.required, Validators.minLength(10)]),
-    'thumb': new FormControl(null)
   })
+  checkUpload:boolean = false;
+  uploadForm:FormData = new FormData();
+  nameFile:string = '';
   user:User[]=[];
   constructor(private userService: UserService){}
 
@@ -40,14 +43,29 @@ export class UserComponent implements OnInit{
       const reader = new FileReader();
       reader.onload = (e: any) => {
         const fileDataURL = e.target.result;
-        this.userForm.patchValue({ thumb: file });
+        this.uploadForm.append('thumb', file);
         this.user[0].thumb = fileDataURL
+        this.nameFile = file.name;
       };
       reader.readAsDataURL(file);
     }
+    this.checkUpload = true;
   }
 
   onSubmit(){
+    if(this.checkUpload) {
+      const file = this.uploadForm.get('thumb');
+      this.userService.uploadFile(file).subscribe(
+        (res) => {
+          let urlFirebase = 'https://firebasestorage.googleapis.com/v0/b/project-management-dc43a.appspot.com/o/';
+          let token = '?alt=media&token=6aa61ebc-1e5a-400d-b35b-d286f7f00478'
+          this.userService.update({thumb: urlFirebase + this.nameFile + token}, this.user[0].id).subscribe()
+        },
+        (error) => {
+          console.log(error);
+        }
+      )
+    }    
     this.userService.update(this.userForm.value, this.user[0].id).subscribe(
       (data) =>{
         this.userService.getById(this.user[0].id).subscribe((newUser)=>{

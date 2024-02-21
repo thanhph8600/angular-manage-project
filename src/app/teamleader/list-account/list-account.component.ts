@@ -23,6 +23,7 @@ export class ListAccountComponent implements OnInit{
     'name': new FormControl(null, Validators.required),
     'email': new FormControl(null, [Validators.email, Validators.required]),
     'role': new FormControl(null, Validators.required),
+    'position': new FormControl(null, Validators.required),
     'area': new FormControl(null, Validators.required),
     'password': new FormControl(null, Validators.required)
   })
@@ -109,7 +110,11 @@ export class ListAccountComponent implements OnInit{
             }
           )
         }else {
-          this.userService.update(this.userForm.value, this.user.id).subscribe((data) => {
+          let data = this.userForm.value
+          if(this.userForm.value.password == this.user.password){
+            delete data.password
+          }
+          this.userService.update(data, this.user.id).subscribe((data) => {
             this.getUser()
             alert('Cập nhật thành công')
             this.dataService.sendEmail(
@@ -147,7 +152,9 @@ export class ListAccountComponent implements OnInit{
         'name': this.user.name,
         'email': this.user.email,
         'role': this.user.role,
+        'position': this.user.position,
         'area': this.user.area,
+        'password': this.user.password
       })
       this.popup = !this.popup;
     })
@@ -160,6 +167,11 @@ export class ListAccountComponent implements OnInit{
   countStaff() {
     const staffs = this.listUser.filter(x=>{ return x.role == 'staff'}).length
     return staffs
+  }
+
+  lockUser() {
+    console.log(this.user);
+    
   }
 }
 

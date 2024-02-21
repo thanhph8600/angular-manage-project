@@ -6,11 +6,11 @@
                 <div class="flex gap-5 py-2">
                     <div class="w-full">
                         <label for="">Tên tài khoản</label>
-                        <input formControlName="name" name="name" type="text" class=" border border-gray-300 text-gray-900 text-sm rounded-md  block w-full px-2 py-1.5 my-2" placeholder="Lỗ Đạt">
+                        <input formControlName="name" name="name" type="text" class=" border border-gray-300 text-gray-900 text-sm rounded-md  block w-full px-2 py-1.5 my-2" placeholder="Lỗ Đạt" readonly>
                     </div>
                     <div class="w-full">
                         <label for="">Email</label>
-                        <input formControlName="email" name="email" placeholder="abc@gmail.com" type="text" class=" border border-gray-300 text-gray-900 text-sm rounded-md  block w-full px-2 py-1.5 my-2 ">
+                        <input formControlName="email" name="email" placeholder="abc@gmail.com" type="text" class=" border border-gray-300 text-gray-900 text-sm rounded-md  block w-full px-2 py-1.5 my-2 " readonly>
                     </div>
                     <div class="w-full">
                         <label for="">Số điện thoại</label>
@@ -29,8 +29,8 @@
                 </div>
                 <div class="w-full py-2">
                     <label for="">Ảnh đại diện</label>
-                    <input type="file" class="w-full block my-2" formControlName="thumb" name="thumb" (change)="changeThumb($event)">
-                    <img class="w-40 my-5" [src]="user[0].thumb"  alt="">
+                    <input type="file" class="w-full block my-2"  name="thumb" (change)="changeThumb($event)">
+                    <img class="w-40 my-5" [src]="user[0].thumb"  alt="" >
                 </div>
                 <div class="py-2">
                     <button class="bg-blue-500 text-white font-semibold text-lg px-4 py-2 rounded-md border">Cập nhật</button>

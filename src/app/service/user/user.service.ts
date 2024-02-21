@@ -52,6 +52,14 @@ export class UserService {
     return this.dataService.getData(this.table)
   }
 
+  getAllCustomer() {
+    return this.dataService.getData(`${this.table}/customer`)
+  }
+
+  getTop5Staff() {
+    return this.dataService.postData(`${this.table}/top5`,{})
+  }
+
   update(data:object,id:number){
     return this.dataService.patchData(`${this.table}/${id}`,data)
   }
@@ -62,6 +70,10 @@ export class UserService {
 
   craete(data:object) {
     return this.dataService.postData(this.table,data)
+  }
+
+  uploadFile(file: any) {
+    return this.dataService.uploadFile(file);
   }
 }
 

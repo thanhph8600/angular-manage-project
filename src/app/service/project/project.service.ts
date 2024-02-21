@@ -15,6 +15,9 @@ export class ProjectService {
   getAll() {
     return this.dataService.getData(this.table)
   }
+  getRevenue(year: number) {
+    return this.dataService.getData(`${this.table}/revenue/${year}`)
+  }
 
   update(data:object,id:number){
     return this.dataService.patchData(`${this.table}/${id}`,data)
@@ -39,4 +42,5 @@ export interface Project {
   status: string;
   createdAt: Date;
   updatedAt: Date; 
+  id_customer: number;
 }

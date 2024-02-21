@@ -10,6 +10,7 @@ import { ListAccountComponent } from './teamleader/list-account/list-account.com
 import { NotfountComponent } from './notfount/notfount.component';
 import { DetailaccountComponent } from './teamleader/detailaccount/detailaccount.component';
 import { DetailProjectComponent } from './teamleader/detail-project/detail-project.component';
+import { CustomerComponent } from './teamleader/customer/customer.component';
 
 export const routes: Routes = [
     {path: 'login',component: LoginComponent},
@@ -29,7 +30,7 @@ export const routes: Routes = [
                 component: DetailProjectComponent, canActivate: [RoleGuard],
                 data: {
                     expectedRole: (route: ActivatedRouteSnapshot) => {
-                        return leader; 
+                        return staff; 
                     },
             }},
             {path: 'detail-project/:idProject/task/:idUser', component: TaskComponent},
@@ -45,8 +46,8 @@ export const routes: Routes = [
                 }
             },
             {
-                path: 'account/:id', 
-                component: DetailaccountComponent, 
+                path: 'customer', 
+                component: CustomerComponent, 
                 canActivate: [RoleGuard],
                 data: {
                     expectedRole: (route: ActivatedRouteSnapshot) => {

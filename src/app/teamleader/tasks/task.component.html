@@ -4,7 +4,7 @@
             <h2 class="text-xl font-semibold"> {{user[0].name}} </h2>
             <p>{{user[0].position}}</p>
         </div>
-        <div *ngIf="project.status !='done' && role != 'staff'" class="border p-4 rounded-md shadow-lg text-center bg-blue-500 text-white flex items-center justify-center gap-4 cursor-pointer hover:bg-blue-400" (click)="changePopup()">
+        <div *ngIf="project.status !='done' && role != 'staff' && checkStatus" class="border p-4 rounded-md shadow-lg text-center bg-blue-500 text-white flex items-center justify-center gap-4 cursor-pointer hover:bg-blue-400" (click)="changePopup()">
             <h2 class="uppercase text-xl font-semibold">Tạo công việc</h2>
             <svg viewBox="0 0 512 512" fill="currentColor" height="2em" width="2em">
                 <path d="M459.94 53.25a16.06 16.06 0 00-23.22-.56L424.35 65a8 8 0 000 11.31l11.34 11.32a8 8 0 0011.34 0l12.06-12c6.1-6.09 6.67-16.01.85-22.38zM399.34 90L218.82 270.2a9 9 0 00-2.31 3.93L208.16 299a3.91 3.91 0 004.86 4.86l24.85-8.35a9 9 0 003.93-2.31L422 112.66a9 9 0 000-12.66l-9.95-10a9 9 0 00-12.71 0z" />
@@ -16,7 +16,7 @@
     <div class="grid grid-cols-4 gap-4 py-8">
         <div>
             <div class=" rounded-md border shadow-lg">
-                <h2 class="bg-gray-300 py-2 text-center font-semibold text-lg rounded-t-md">Chưa giải quyết</h2>
+                <h2 class="bg-gray-300 py-2 text-center font-semibold text-lg rounded-t-md">Đang chờ</h2>
                     <div *ngFor="let item of listPending">
                         <div 
                             class=" p-2 border-b" 
@@ -30,16 +30,18 @@
                                 <p *ngIf="item.note" class="py-2">Ghi chú: {{item.note}} </p>
                                 <div class="flex justify-between">
                                     <p class="">Hạn cuối: {{ formattedDate(item.endDate)}} </p>
-                                    <ng-container *ngIf="role!='staff'; else elseTemplate">
-                                        <svg (click)="editTask(item)" class=" cursor-pointer" viewBox="0 0 1024 1024" fill="currentColor" height="1em" width="1em" >
-                                            <path d="M880 836H144c-17.7 0-32 14.3-32 32v36c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-36c0-17.7-14.3-32-32-32zm-622.3-84c2 0 4-.2 6-.5L431.9 722c2-.4 3.9-1.3 5.3-2.8l423.9-423.9a9.96 9.96 0 000-14.1L694.9 114.9c-1.9-1.9-4.4-2.9-7.1-2.9s-5.2 1-7.1 2.9L256.8 538.8c-1.5 1.5-2.4 3.3-2.8 5.3l-29.5 168.2a33.5 33.5 0 009.4 29.8c6.6 6.4 14.9 9.9 23.8 9.9z" />
-                                        </svg>
-                                    </ng-container>
-                                    <ng-template #elseTemplate>
-                                        <svg (click)="updateStatusByUser(item,'doing')" class=" cursor-pointer text-green-500 text-2xl" viewBox="0 0 512 512" fill="currentColor" height="1em" width="1em" >
-                                            <path d="M256 48C141.31 48 48 141.31 48 256s93.31 208 208 208 208-93.31 208-208S370.69 48 256 48zm48.19 121.42l24.1 21.06-73.61 84.1-24.1-23.06zM191.93 342.63L121.37 272 144 249.37 214.57 320zm65 .79L185.55 272l22.64-22.62 47.16 47.21 111.13-127.17 24.1 21.06z" />
-                                        </svg>
-                                    </ng-template>
+                                    <div *ngIf="user[0].id == idAccount">
+                                        <ng-container *ngIf="role!='staff'; else elseTemplate">
+                                            <svg (click)="editTask(item)" class=" cursor-pointer" viewBox="0 0 1024 1024" fill="currentColor" height="1em" width="1em" >
+                                                <path d="M880 836H144c-17.7 0-32 14.3-32 32v36c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-36c0-17.7-14.3-32-32-32zm-622.3-84c2 0 4-.2 6-.5L431.9 722c2-.4 3.9-1.3 5.3-2.8l423.9-423.9a9.96 9.96 0 000-14.1L694.9 114.9c-1.9-1.9-4.4-2.9-7.1-2.9s-5.2 1-7.1 2.9L256.8 538.8c-1.5 1.5-2.4 3.3-2.8 5.3l-29.5 168.2a33.5 33.5 0 009.4 29.8c6.6 6.4 14.9 9.9 23.8 9.9z" />
+                                            </svg>
+                                        </ng-container>
+                                        <ng-template #elseTemplate>
+                                            <svg *ngIf="!overWorked(item.endDate)" (click)="updateStatusByUser(item,'doing')" class=" cursor-pointer text-green-500 text-2xl" viewBox="0 0 512 512" fill="currentColor" height="1em" width="1em" >
+                                                <path d="M256 48C141.31 48 48 141.31 48 256s93.31 208 208 208 208-93.31 208-208S370.69 48 256 48zm48.19 121.42l24.1 21.06-73.61 84.1-24.1-23.06zM191.93 342.63L121.37 272 144 249.37 214.57 320zm65 .79L185.55 272l22.64-22.62 47.16 47.21 111.13-127.17 24.1 21.06z" />
+                                            </svg>
+                                        </ng-template>
+                                    </div>
                                     
                                 </div>
                             </div>
@@ -70,7 +72,7 @@
                                     </svg>
                                 </ng-container>
                                 <ng-template #elseTemplate>
-                                    <svg (click)="updateStatusByUser(item,'done')" class=" cursor-pointer text-green-500 text-2xl" viewBox="0 0 512 512" fill="currentColor" height="1em" width="1em" >
+                                    <svg *ngIf="!overWorked(item.endDate)" (click)="updateStatusByUser(item,'done')" class=" cursor-pointer text-green-500 text-2xl" viewBox="0 0 512 512" fill="currentColor" height="1em" width="1em" >
                                         <path d="M256 48C141.31 48 48 141.31 48 256s93.31 208 208 208 208-93.31 208-208S370.69 48 256 48zm48.19 121.42l24.1 21.06-73.61 84.1-24.1-23.06zM191.93 342.63L121.37 272 144 249.37 214.57 320zm65 .79L185.55 272l22.64-22.62 47.16 47.21 111.13-127.17 24.1 21.06z" />
                                     </svg>
                                 </ng-template>
@@ -84,7 +86,7 @@
             <div class="rounded-md border shadow-lg">
                 <h2 class="bg-blue-300 py-2 text-center font-semibold text-lg rounded-t-md">Chờ xác nhận</h2>
                 <div *ngFor="let item of listDone">
-                    <div class=" p-2 border-b" [ngClass]="{'bg-red-400': overWorked(item.endDate)}" >
+                    <div class=" p-2 border-b"  >
                         <p class="cursor-pointer item-title font-semibold"> {{item.name}} </p>
                         <div class="item-description hidden ">
                             <p class="py-2">Nội dung: {{item.description}} </p>
@@ -109,7 +111,7 @@
             <div class=" rounded-md border shadow-lg">
                 <h2 class="bg-green-300 py-2 text-center font-semibold text-lg rounded-t-md">Đã xong</h2>
                 <div *ngFor="let item of listFinished">
-                    <div class=" p-2 border-b" [ngClass]="{'bg-red-400': overWorked(item.endDate)}" >
+                    <div class=" p-2 border-b">
                         <p class="cursor-pointer item-title font-semibold"> {{item.name}} </p>
                         <div class="item-description hidden ">
                             <p class="py-2">Nội dung: {{item.description}} </p>

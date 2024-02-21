@@ -5,7 +5,9 @@
             <div class="flex gap-4 items-center">
                 <div>
                     <a routerLink="user">
-                        <img class="w-10 h-10 flex justify-center items-center rounded-full border" src="https://firebasestorage.googleapis.com/v0/b/project-management-dc43a.appspot.com/o/user-image.jpg?alt=media&token=e6fbacef-f723-49e7-881b-815ee31e4eec" alt="">
+                        <div class="w-10 h-10 flex justify-center items-center rounded-full border overflow-hidden">
+                            <img  [src]="user[0].thumb" alt="" class="w-full h-full object-cover">
+                        </div>
                     </a>
                 </div>
                 <div>

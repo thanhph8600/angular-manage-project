@@ -1,0 +1,84 @@
+<div class=" container m-auto pt-4 px-10">
+    <div class="flex flex-col">
+        <div class="sm:-mx-6 lg:-mx-8">
+            <div class="inline-block min-w-full py-2 sm:px-6 lg:px-8">
+                <div class="">
+                    <table class="min-w-full text-left text-sm font-light border rounded-xl overflow-hidden shadow-lg">
+                        <thead class="border-b font-medium dark:border-neutral-500 bg-gray-100">
+                            <tr>
+                                <th scope="col" class="px-6 py-4">Tên nhân khách hàng</th>
+                                <th scope="col" class="px-6 py-4">Email</th>
+                                <th scope="col" class="px-6 py-4">Số điện thoại</th>
+                                <th scope="col" class="px-2 py-4">
+                                  <span (click)="changePopup()" class="px-4 py-2 rounded-md bg-green-500 text-white cursor-pointer">Thêm mới khách hàng</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                          <tr *ngFor="let item of filterCustomer" class="border-b dark:border-neutral-500">
+                              <td class="whitespace-nowrap px-6 py-4 font-medium">{{item.name}}</td>
+                              <td class="whitespace-nowrap px-6 py-4"> {{item.email}} </td>
+                              <td class="whitespace-nowrap px-6 py-4">{{item.phone}}</td>
+                              <td class="whitespace-nowrap px-6 py-4 text-center">     
+                                <svg (click)="btn_edit(item.id)" class=" cursor-pointer " viewBox="0 0 1024 1024" fill="currentColor" height="1em" width="1em" >
+                                  <path d="M257.7 752c2 0 4-.2 6-.5L431.9 722c2-.4 3.9-1.3 5.3-2.8l423.9-423.9a9.96 9.96 0 000-14.1L694.9 114.9c-1.9-1.9-4.4-2.9-7.1-2.9s-5.2 1-7.1 2.9L256.8 538.8c-1.5 1.5-2.4 3.3-2.8 5.3l-29.5 168.2a33.5 33.5 0 009.4 29.8c6.6 6.4 14.9 9.9 23.8 9.9zm67.4-174.4L687.8 215l73.3 73.3-362.7 362.6-88.9 15.7 15.6-89zM880 836H144c-17.7 0-32 14.3-32 32v36c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-36c0-17.7-14.3-32-32-32z" />
+                                </svg> 
+                              </td>
+                          </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="popup" class="fixed top-0 left-0 w-full h-screen">
+        <div class="fixed top-0 left-0 w-full h-screen bg-black opacity-40"  (click)="changePopup()"></div>
+        <div class="fixed top-1/4 left-1/2 -translate-y-1/4 -translate-x-1/2">
+            <div class=" py-8 px-6 bg-white rounded-md shadow-md lg:w-[600px] relative">
+                <h2 class="uppercase text-xl font-semibold text-center">Thêm khách hàng</h2>
+                <form action="" class=" pt-3" [formGroup]="formCustomer" (ngSubmit)="onSubmit()">
+                    <div class="flex gap-2">
+                      <div class="py-2 w-full">
+                        <label for="name">Tên khách hàng:</label>
+                        <input formControlName="name" class="w-full border rounded-md py-1 px-2 my-2" type="text" name="name">
+                        <span class="text-red-500" *ngIf="!formCustomer.get('name')?.valid && 
+                        formCustomer.get('name')?.touched"> Điền tên khách hàng </span>
+                      </div>
+                      <div class="py-2 w-full">
+                          <label for="name">Email</label>
+                          <input formControlName="email" class="w-full border rounded-md py-1 px-2 my-2" type="email" name="email">
+                          <span class="text-red-500" *ngIf="!formCustomer.get('email')?.valid && 
+                          formCustomer.get('email')?.touched"> Email Không hợp lệ </span>
+                      </div>
+                    </div>
+                    <div  class="flex gap-2">
+                        <div class="py-2 w-full">
+                            <label for="name">Phone</label>
+                            <input formControlName="phone" class="w-full border rounded-md py-1 px-2 my-2"  type="text" name="phone">
+                            <span class="text-red-500" *ngIf="!formCustomer.get('phone')?.valid && 
+                          formCustomer.get('phone')?.touched"> Số không chính xát </span>
+                        </div>
+                        <div class="py-2 w-full">
+                            <label for="name">Mật khẩu:</label>
+                            <input formControlName="password" class="w-full border rounded-md py-1 px-2 my-2" type="password" name="password">
+                            <span class="text-red-500" *ngIf="!formCustomer.get('password')?.valid && 
+                            formCustomer.get('password')?.touched"> Điền trường này </span>
+                        </div>
+                    </div>
+
+                    <div class=" py-2 flex justify-between">
+                        <button  class=" px-6 py-2 rounded-md shadow bg-blue-500 text-white">
+                            Tạo
+                        </button>
+                    </div>
+                </form>
+                <span class=" absolute top-4 right-4">
+                    <svg  (click)="changePopup()" class=" cursor-pointer " viewBox="0 0 1024 1024" fill="currentColor" height="1.5em" width="1.5em">
+                        <path d="M685.4 354.8c0-4.4-3.6-8-8-8l-66 .3L512 465.6l-99.3-118.4-66.1-.3c-4.4 0-8 3.5-8 8 0 1.9.7 3.7 1.9 5.2l130.1 155L340.5 670a8.32 8.32 0 00-1.9 5.2c0 4.4 3.6 8 8 8l66.1-.3L512 564.4l99.3 118.4 66 .3c4.4 0 8-3.5 8-8 0-1.9-.7-3.7-1.9-5.2L553.5 515l130.1-155c1.2-1.4 1.8-3.3 1.8-5.2z" />
+                        <path d="M512 65C264.6 65 64 265.6 64 513s200.6 448 448 448 448-200.6 448-448S759.4 65 512 65zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z" />
+                    </svg>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>

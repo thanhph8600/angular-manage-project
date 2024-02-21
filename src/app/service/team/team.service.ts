@@ -21,7 +21,9 @@ export class TeamService {
     
     return this.dataService.patchData(`${this.table}/${id}`,data)
   }
-
+  updateJobTransfer(data:object, id:number){
+    return this.dataService.patchData(`${this.table}/job-transfer/${id}`,data)
+  }
   craete(data:object) {
     return this.dataService.postData(this.table,data)
   }

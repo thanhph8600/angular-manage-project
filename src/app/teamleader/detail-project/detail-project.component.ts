@@ -4,7 +4,7 @@ import { NgFor, NgIf, DatePipe } from '@angular/common';
 import { Project, ProjectService } from '../../service/project/project.service';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Team, TeamService } from '../../service/team/team.service';
-import { get } from 'jquery';
+import { TaskService } from '../../service/task/task.service';
 
 @Component({
   selector: 'app-detail-project',
@@ -19,32 +19,47 @@ export class DetailProjectComponent implements OnInit {
   teamProject: any[] = [];
   project!: Project;
   user: User[] = [];
-  
+  customer: User[] = [];
+  popup = false;
+  valueOutProject = {
+    id: 0,
+    id_account: 0,
+    id_project: 0,
+    id_account_change: 0,
+    name: '',
+    sumtask: 0,
+  };
   constructor(
     private userService: UserService, 
     private projectService: ProjectService,
     private teamService: TeamService,
+    private taskService: TaskService,
     private router: ActivatedRoute,
-    private datePipe: DatePipe
+    private datePipe: DatePipe,
   ) {}
 
   ngOnInit(): void {
+    this.getvalue();
+    this.user = this.userService.getUser()
+  }
+
+  getvalue() {
     this.router.paramMap.subscribe((params) => {
       this.getProject(Number(params.get('id')));
       this.getTeamProject(Number(params.get('id')));
     });
     this.getStaff();
-    this.user = this.userService.getUser()
-    console.log(this.user);
-    
   }
   getProject(id:number) {
     this.projectService.getById(id).subscribe((data) => {
       this.project = data;
+      this.userService.getById(data.id_customer).subscribe((data) => {
+        this.customer.push(data);
+      });
     });
   }
-
   getTeamProject(id:number) {
+    this.teamProject = [];
     this.teamService.getByIdProject(id).subscribe((data) => {
       data.forEach((x:Team) => {
         this.userService.getById(x.id_account).subscribe((data) => {
@@ -124,8 +139,8 @@ export class DetailProjectComponent implements OnInit {
       status: 'working'
     }
     this.projectService.update(data, this.project.id).subscribe((data) => {
-      console.log(data);
       alert('Xác nhận thành công');
+      this.getTeamProject(this.valueOutProject.id_project);
     }, (error) => {
       console.log(error);
       alert('Xác nhận thất bại');
@@ -161,6 +176,43 @@ export class DetailProjectComponent implements OnInit {
     });
   }
 
+  changePopup(user?: any) {
+    this.popup = !this.popup;
+    
+    if(user) {
+      this.valueOutProject.id = user.id_team;
+      this.valueOutProject.id_account = user.id;
+      this.valueOutProject.id_project = this.project.id;
+      this.valueOutProject.name = user.name;
+      this.taskService.getTasks().subscribe((data) => {
+        let filter = data.filter((x:any) => x.id_account == user.id && x.id_project == this.project.id && x.status != 'finished');
+        this.valueOutProject.sumtask = filter.length;
+      })
+    }
+  }
+  onChange(event: Event) {
+    const selectedId = (event.target as HTMLSelectElement).value;
+    this.valueOutProject.id_account_change = Number(selectedId);
+  }
+  assignTask() {
+    if (this.valueOutProject.id_account_change == 0) {
+      alert('Chưa chọn nhân viên');
+      return;
+    }
+    
+    this.taskService.updateJobTransfer(this.valueOutProject, this.valueOutProject.id_account_change ).subscribe((data) => {
+      this.teamService.updateJobTransfer(this.valueOutProject, this.valueOutProject.id_account_change ).subscribe((data) => {});
+      this.userService.updateStatus({status: 'busy'}, this.valueOutProject.id_account_change).subscribe((data) => {});
+      this.userService.updateStatus({status: 'activate'}, this.valueOutProject.id_account).subscribe((data) => {});
+      this.getTeamProject(this.valueOutProject.id_project);
+      
+      alert('Gán task thành công');
+      this.changePopup();
+    }, (error) => {
+      console.log(error);
+      alert('Gán task thất bại');
+    });
+  }
 
   formatPrice(price: number) {
     return price.toLocaleString('it-IT', {style : 'currency', currency : 'VND'});

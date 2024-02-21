@@ -5,14 +5,18 @@
             <p> {{formatPrice(project.expense) }} ({{project.teamSize}} thành viên)</p>
         </div>
         <div  class=" border p-4 rounded-md shadow-lg text-center ">
-            <p> Ngày bắt đầu: {{currentDate(project.startDate)}}</p>
-            <p> Ngày kết thúc: {{currentDate(project.endDate)}} </p>
+            <p> Khách hàng: {{customer[0].name}}</p>
+            <p> Ngày tạo: {{currentDate(project.createdAt)}}</p>
+            <p> Dự đoán hoàn thành: {{currentDate(project.endDate)}} </p>
         </div>
 
-        <div  class=" border p-4 rounded-md shadow-lg text-center text-green-500">
-            <h2 class="uppercase text-xl font-semibold">{{project.status}} </h2>
+        <div  class=" border p-4 rounded-md shadow-lg text-center text-green-500 flex justify-center items-center">
+            <div class="">
+                <h2 class="uppercase text-xl font-semibold">{{project.status}} </h2>
+                <p *ngIf="project.status =='done'"> Ngày hoàn thành: {{ currentDate(project.updatedAt) }}</p>
+            </div>
         </div>
-        <div (click)="doneProject()" *ngIf="project.status =='working'" class="border p-4 rounded-md shadow-lg text-center bg-blue-500 text-white flex items-center justify-center gap-4 cursor-pointer hover:bg-blue-400" >
+        <div (click)="doneProject()" *ngIf="project.status =='working' && user[0].role != 'staff'" class="border p-4 rounded-md shadow-lg text-center bg-blue-500 text-white flex items-center justify-center gap-4 cursor-pointer hover:bg-blue-400" >
             <h2 class="uppercase text-xl font-semibold">Hoàn thành</h2>
             <svg fill="currentColor" viewBox="0 0 16 16"  height="1em"  width="1em"  >
             <path d="M16 8A8 8 0 110 8a8 8 0 0116 0zm-3.97-3.03a.75.75 0 00-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 00-1.06 1.06L6.97 11.03a.75.75 0 001.079-.02l3.992-4.99a.75.75 0 00-.01-1.05z" />
@@ -111,6 +115,7 @@
                                 <th scope="col" class="px-6 py-4">Số công việc</th>
                                 <th scope="col" class="px-6 py-4">Trạng thái</th>
                                 <th scope="col" class="px-6 py-4"></th>
+                                <th scope="col" class="px-6 py-4"></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -135,6 +140,11 @@
                                         </svg>
                                     </a>
                                 </td>
+                                <td *ngIf="item.teamStatus != 'off'"> 
+                                    <div *ngIf="user[0].role !='staff' && item.role =='staff'||  item.role=='staff' && item.id == user[0].id">
+                                        <span  (click)="changePopup(item)" class="px-4 py-2 rounded-lg text-white hover:bg-red-500 whitespace-nowrap cursor-pointer bg-red-400">Bàn giao công việc</span>
+                                    </div>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -142,6 +152,42 @@
             </div>
         </div>
     </div>
-    
 
+    <div *ngIf="popup" class="fixed top-0 left-0 w-full h-screen">
+        <div class="fixed top-0 left-0 w-full h-screen bg-black opacity-40"  (click)="changePopup()"></div>
+        <div class="fixed top-1/4 left-1/2 -translate-y-1/4 -translate-x-1/2">
+            <div class=" py-8 px-6 bg-white rounded-md shadow-md lg:w-[600px] relative">
+                <h2 class="font-semibold text-lg text-center">BÀN GIAO CÔNG VIỆC</h2>
+                <div class="flex flex-col gap-4 pt-4">
+                    <div class="flex gap-4">
+                        <div class="w-1/2">
+                            <p class="font-semibold  py-2">Nhân viên rời đi:</p>
+                            <input class="w-full border rounded-md p-2" type="text" [value]="valueOutProject.name" readonly>
+                        </div>
+                        <div class="w-1/2">
+                            <p class="font-semibold py-2">Số công việc chưa hoàn thành</p>
+                            <input class="w-full border rounded-md p-2" type="text" [value]="valueOutProject.sumtask" readonly>
+                        </div>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="w-1/2">
+                            <p class="font-semibold  py-2">Chọn nhân viên tiếp nhận</p>
+                            <select  class="w-full border rounded-md p-2" (change)="onChange($event)" >
+                                <option value="0">Chọn nhân viên</option>
+                                <option *ngFor="let item of listStaff" [value]="item.id">{{item.name}}</option>
+                            </select>
+                        </div>
+                        <div class="w-1/2">
+                            <p class="font-semibold py-2">Chọn công việc</p>
+                            <select  class="w-full border rounded-md p-2">
+                                <option >Tất cả công việc</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex justify-end">
+                        <button (click)="assignTask()" class="px-4 py-2 rounded-lg text-white bg-blue-500 hover:bg-blue-400">Bàn giao</button>
+                    </div>
+            </div>
+        </div>
+    </div>
 </div>
